@@ -779,28 +779,33 @@
         const footerLayer2 = document.getElementById('footer-stars-layer-2');
         const footerLayer3 = document.getElementById('footer-stars-layer-3');
         const sensesSection = document.getElementById('senses-section');
+        const isMobileForEffects = window.innerWidth <= 768; // Определяем мобильное устройство для эффектов
 
         function updateEffects() {
             const scrollY = window.scrollY;
 
-            const parallaxFactor1 = 0.1;
-            const parallaxFactor2 = 0.2;
-            const parallaxFactor3 = 0.35;
+            // Отключаем параллакс на мобильных
+            if (!isMobileForEffects) {
+                const parallaxFactor1 = 0.1;
+                const parallaxFactor2 = 0.2;
+                const parallaxFactor3 = 0.35;
 
-            if (heroLayer1) heroLayer1.style.transform = `translateY(${scrollY * parallaxFactor1}px)`;
-            if (heroLayer2) heroLayer2.style.transform = `translateY(${scrollY * parallaxFactor2}px)`;
-            if (heroLayer3) heroLayer3.style.transform = `translateY(${scrollY * parallaxFactor3}px)`;
+                if (heroLayer1) heroLayer1.style.transform = `translateY(${scrollY * parallaxFactor1}px)`;
+                if (heroLayer2) heroLayer2.style.transform = `translateY(${scrollY * parallaxFactor2}px)`;
+                if (heroLayer3) heroLayer3.style.transform = `translateY(${scrollY * parallaxFactor3}px)`;
 
-            const footerSectionEl = document.querySelector('.footer-section');
-            if (footerSectionEl) {
-                const footerTop = footerSectionEl.offsetTop;
-                const scrollRelativeToFooter = Math.max(0, scrollY + window.innerHeight - footerTop);
-                if (footerLayer1) footerLayer1.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor1 * 0.6}px)`;
-                if (footerLayer2) footerLayer2.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor2 * 0.6}px)`;
-                if (footerLayer3) footerLayer3.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor3 * 0.6}px)`;
+                const footerSectionEl = document.querySelector('.footer-section');
+                if (footerSectionEl) {
+                    const footerTop = footerSectionEl.offsetTop;
+                    const scrollRelativeToFooter = Math.max(0, scrollY + window.innerHeight - footerTop);
+                    if (footerLayer1) footerLayer1.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor1 * 0.6}px)`;
+                    if (footerLayer2) footerLayer2.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor2 * 0.6}px)`;
+                    if (footerLayer3) footerLayer3.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor3 * 0.6}px)`;
+                }
             }
 
-            if (sensesSection) {
+            // Отключаем градиент на мобильных
+            if (sensesSection && !isMobileForEffects) {
                  const rect = sensesSection.getBoundingClientRect();
                  const mouseXInSection = Math.max(0, Math.min(1, (mouseX - rect.left) / rect.width));
                  const mouseYInSection = Math.max(0, Math.min(1, (mouseY - rect.top) / rect.height));
@@ -815,12 +820,13 @@
 
          document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
-                 createStars('stars-layer-1', 50, 100);
-                 createStars('stars-layer-2', 80, 150);
-                 createStars('stars-layer-3', 100, 200);
-                 createStars('footer-stars-layer-1', 40, 80);
-                 createStars('footer-stars-layer-2', 60, 120);
-                 createStars('footer-stars-layer-3', 80, 150);
+                 const mobileMultiplier = isMobileForEffects ? 0.4 : 1;
+                 createStars('stars-layer-1', 50 * mobileMultiplier, 100 * mobileMultiplier);
+                 createStars('stars-layer-2', 80 * mobileMultiplier, 150 * mobileMultiplier);
+                 createStars('stars-layer-3', 100 * mobileMultiplier, 200 * mobileMultiplier);
+                 createStars('footer-stars-layer-1', 40 * mobileMultiplier, 80 * mobileMultiplier);
+                 createStars('footer-stars-layer-2', 60 * mobileMultiplier, 120 * mobileMultiplier);
+                 createStars('footer-stars-layer-3', 80 * mobileMultiplier, 150 * mobileMultiplier);
             }, 200);
          });
 
@@ -836,12 +842,13 @@
          };
 
          const handleResize = debounce(() => {
-             createStars('stars-layer-1', 50, 100);
-             createStars('stars-layer-2', 80, 150);
-             createStars('stars-layer-3', 100, 200);
-             createStars('footer-stars-layer-1', 40, 80);
-             createStars('footer-stars-layer-2', 60, 120);
-             createStars('footer-stars-layer-3', 80, 150);
+             const mobileMultiplier = window.innerWidth <= 768 ? 0.4 : 1;
+             createStars('stars-layer-1', 50 * mobileMultiplier, 100 * mobileMultiplier);
+             createStars('stars-layer-2', 80 * mobileMultiplier, 150 * mobileMultiplier);
+             createStars('stars-layer-3', 100 * mobileMultiplier, 200 * mobileMultiplier);
+             createStars('footer-stars-layer-1', 40 * mobileMultiplier, 80 * mobileMultiplier);
+             createStars('footer-stars-layer-2', 60 * mobileMultiplier, 120 * mobileMultiplier);
+             createStars('footer-stars-layer-3', 80 * mobileMultiplier, 150 * mobileMultiplier);
          }, 300);
          window.addEventListener('resize', handleResize);
 
@@ -852,7 +859,7 @@
             document.body.style.setProperty('--animation-duration', '0.3s');
             
             const touchHandler = (e) => {
-                const target = e.target.closest('.fragment, .sense-card, .envelope');
+                const target = e.target.closest('.sense-card');
                 if (target) {
                     target.click();
                 }
@@ -875,7 +882,8 @@
         // Создание звёзд
         function createFallingStars() {
             const container = document.querySelector('.hero-section');
-            if (!container) return;
+            const isMobile = window.innerWidth <= 768;
+            if (!container || isMobile) return; // Не создаем падающие звезды на мобильных
 
             const createStar = () => {
                 const star = document.createElement('div');
@@ -910,7 +918,7 @@
             };
 
             // Создаем начальные звёзды
-            const initialStars = isMobile ? 15 : 30;
+            const initialStars = 30; // Количество только для десктопа
             for (let i = 0; i < initialStars; i++) {
                 createStar();
             }
@@ -922,6 +930,7 @@
         // Инициализация звёзд после загрузки страницы
         window.addEventListener('load', () => {
             createFallingStars();
+            requestAnimationFrame(updateEffects);
         });
 
         // Оптимизация для мобильных устройств
@@ -933,8 +942,6 @@
                 });
             }
         };
-
-        window.addEventListener('resize', optimizeForMobile);
 
     </script>
 
