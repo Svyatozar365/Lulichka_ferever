@@ -457,7 +457,6 @@
         /* Улучшение отзывчивости */
         .sense-card, .fragment, .envelope {
             min-height: 44px;
-            touch-action: manipulation;
         }
 
         /* Анимация пяти чувств для десктопа */
@@ -853,14 +852,13 @@
             document.body.style.setProperty('--animation-duration', '0.3s');
             
             const touchHandler = (e) => {
-                e.preventDefault();
                 const target = e.target.closest('.fragment, .sense-card, .envelope');
                 if (target) {
                     target.click();
                 }
             };
             
-            document.addEventListener('touchstart', touchHandler, { passive: false });
+            document.addEventListener('touchstart', touchHandler);
         }
         
         // Оптимизация производительности
