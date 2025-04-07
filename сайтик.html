@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ru" style="scroll-behavior: smooth;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Люличка — моё навсегда</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f0f1a; z-index: 9999; display: flex;
+            align-items: center; justify-content: center; opacity: 1;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #preloader.hidden { opacity: 0; pointer-events: none; }
+        .loader {
+            border: 5px solid rgba(255, 255, 255, 0.2); border-left-color: #ffffff;
+            border-radius: 50%; width: 60px; height: 60px;
+            animation: spin 1.2s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        body {
+            font-family: 'Inter', sans-serif; background-color: #1a1a2e;
+            color: #e0e0e0; overflow-x: hidden; opacity: 0;
+            transition: opacity 0.5s ease-in;
+            cursor: auto; /* Restore default cursor */
+        }
+        body.loaded { opacity: 1; }
+        .font-handwritten { font-family: 'Caveat', cursive; font-weight: 500; }
+
+        .hero-section {
+            height: 100vh; min-height: 600px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 1.5rem; position: relative; overflow: hidden;
+            background: radial-gradient(ellipse at 70% 100%, #3a2a4a 0%, #2c1f3a 40%, #1a1125 70%, #0d0a10 100%);
+        }
+
+        @keyframes hero-glow {
+            0%, 100% { text-shadow: 0 0 18px rgba(255, 255, 255, 0.5), 0 0 30px rgba(220, 200, 255, 0.3), 0 0 45px rgba(255, 180, 255, 0.2); }
+            50% { text-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 0 0 45px rgba(230, 210, 255, 0.4), 0 0 65px rgba(255, 200, 255, 0.3); }
+        }
+        .hero-section h1 {
+            animation: hero-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes gentle-breathe {
+            0%, 100% { transform: scale(1); opacity: 0.85; }
+            50% { transform: scale(1.015); opacity: 1; }
+        }
+        .animate-gentle-breathe { animation: gentle-breathe 6s ease-in-out infinite; }
+
+        .stars-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; overflow: hidden;
+        }
+        #stars-layer-1 { transition: transform 0.1s linear; z-index: 1; }
+        #stars-layer-2 { transition: transform 0.2s linear; z-index: 2; }
+        #stars-layer-3 { transition: transform 0.3s linear; z-index: 3; }
+
+        .star {
+            position: absolute; background-color: white; border-radius: 50%;
+            opacity: 0; animation: twinkle 6s infinite ease-in-out;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+        }
+        .star.type1 { width: 1px; height: 1px; animation-duration: 5s; animation-delay: -1s; }
+        .star.type2 { width: 2px; height: 2px; animation-duration: 6s; animation-delay: -2.5s; }
+        .star.type3 { width: 3px; height: 3px; animation-duration: 7s; animation-delay: -4s; box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.7); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .star-dust {
+            position: absolute; background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%; opacity: 0;
+            animation: driftFade var(--drift-duration, 20s) linear infinite alternate;
+            animation-delay: var(--drift-delay, 0s);
+            width: var(--dust-size, 1px); height: var(--dust-size, 1px);
+            filter: blur(0.5px);
+        }
+        @keyframes driftFade {
+            0% { transform: translate(0, 0); opacity: 0; }
+            25% { opacity: var(--dust-opacity, 0.5); }
+            75% { opacity: var(--dust-opacity, 0.5); }
+            100% { transform: translate(var(--drift-x, 10px), var(--drift-y, 10px)); opacity: 0; }
+        }
+
+        .portrait-section {
+            background-color: #f8f8fa; color: #2d2d3a;
+            padding-top: 6rem; padding-bottom: 6rem;
+        }
+        .portrait-container {
+            position: relative; cursor: default;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.5s ease;
+            border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+        .portrait-container:hover {
+            transform: scale(1.04) rotate(1deg);
+            box-shadow: 0 15px 40px rgba(150, 150, 200, 0.3);
+        }
+        .portrait-container:hover img {
+            filter: brightness(1.03); box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            transition: filter 0.5s ease, box-shadow 0.5s ease;
+        }
+        .portrait-container img {
+            border-radius: 1rem; display: block;
+            transition: filter 0.5s ease, box-shadow 0.5s ease;
+        }
+        .portrait-description {
+            position: absolute; background-color: rgba(40, 40, 60, 0.92);
+            color: #f5f5f5; padding: 12px 20px; border-radius: 30px;
+            font-size: 1rem; opacity: 0;
+            transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none; white-space: nowrap;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3); backdrop-filter: blur(5px); z-index: 1;
+        }
+        .desc-laugh { top: 18%; left: 75%; transform: translate(-50%, -50%) scale(0.8); }
+        .desc-eyes { top: 42%; left: 88%; transform: translate(-50%, -50%) scale(0.8); }
+        .portrait-container:hover .portrait-description {
+             opacity: 1; transform: translate(-50%, -50%) scale(1);
+        }
+        .portrait-container:hover .desc-laugh { transition-delay: 0.15s; }
+        .portrait-container:hover .desc-eyes { transition-delay: 0.3s; }
+
+        .senses-section {
+             background: var(--senses-bg, linear-gradient(170deg, #2a2a4e 0%, #1f1d3a 40%, #1a1a2e 70%, #1b2735 100%));
+             transition: background 0.5s ease;
+             color: #e0e0e0; position: relative; padding-top: 6rem; padding-bottom: 6rem; overflow: hidden;
+        }
+        .sense-card {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                        box-shadow 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
+            color: #e5e5e5; opacity: 0; transform: translateY(40px) scale(0.95);
+            border-radius: 1rem;
+        }
+        .sense-card.is-visible {
+            opacity: 1; transform: translateY(0) scale(1);
+            transition-property: opacity, transform;
+            transition-duration: 0.7s;
+            transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .sense-card.is-visible:nth-child(1) { transition-delay: 0.1s; }
+        .sense-card.is-visible:nth-child(2) { transition-delay: 0.15s; }
+        .sense-card.is-visible:nth-child(3) { transition-delay: 0.2s; }
+        .sense-card.is-visible:nth-child(4) { transition-delay: 0.25s; }
+        .sense-card.is-visible:nth-child(5) { transition-delay: 0.3s; }
+
+        .sense-card:hover {
+            transform: translateY(-10px) rotate(var(--rotate-deg, 1.5deg));
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 200, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        .sense-card:nth-child(even):hover { --rotate-deg: -1.5deg; }
+
+        .sense-card h3 { color: #ffffff; text-shadow: 0 0 8px rgba(255,255,255,0.3); font-weight: 500; }
+        .sense-card p { color: #cccccc; line-height: 1.7; transform: translateZ(0); }
+
+        @keyframes icon-bounce {
+            0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+            50% { transform: translateY(-5px) scale(1.2) rotate(8deg); }
+        }
+        .sense-icon {
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+            transition: transform 0.35s ease;
+        }
+        .sense-card:hover .sense-icon {
+             animation: icon-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(147, 197, 253, 0.6)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 12px rgba(147, 197, 253, 1)); transform: scale(1.08); }
+        }
+        .animate-pulse-glow img { animation: pulse-glow 3.5s ease-in-out infinite; }
+
+        .gallery-section {
+            background-color: #f8f8fa; color: #2d2d3a;
+            padding-top: 6rem; padding-bottom: 6rem;
+        }
+        .fragment {
+            opacity: 0; transform: translateY(40px) scale(0.9);
+            position: relative; overflow: hidden; border-radius: 1rem;
+            box-shadow: 0 8px 22px rgba(0,0,0,0.1); cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease, opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .fragment:hover {
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15), 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .fragment.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+        .fragment.is-visible:nth-child(odd) { transition-delay: 0.15s; }
+        .fragment.is-visible:nth-child(even) { transition-delay: 0.25s; }
+
+        .fragment img {
+            transition: transform 0.5s ease, filter 0.5s ease; display: block;
+            width: 100%; height: 100%; object-fit: cover; filter: brightness(1);
+            border-radius: calc(1rem - 2px);
+        }
+        .fragment:hover img { transform: scale(1.1); filter: brightness(0.95); }
+        .fragment-caption {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
+            color: white; padding: 25px 20px 15px 20px; font-size: 1.1rem;
+            transform: translateY(100%);
+            transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.45s ease;
+            font-family: 'Caveat', cursive; font-weight: 500; opacity: 0;
+            pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .fragment:hover .fragment-caption { transform: translateY(0); opacity: 1; }
+
+        #lightbox {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(10, 10, 20, 0.92); backdrop-filter: blur(12px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 10000; opacity: 0; transition: opacity 0.5s ease; cursor: pointer;
+        }
+        #lightbox.active { display: flex; opacity: 1; }
+        #lightbox img {
+            max-width: 90vw; max-height: 85vh; object-fit: contain;
+            box-shadow: 0 0 50px rgba(0,0,0,0.7); border-radius: 8px; cursor: default;
+            transform: scale(0.9); opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+        }
+        #lightbox.active img { transform: scale(1); opacity: 1; }
+        #lightbox-caption {
+            position: absolute; bottom: 4%; left: 50%; transform: translateX(-50%);
+            color: #f0f0f0; font-family: 'Caveat', cursive; font-size: 1.8rem; font-weight: 600;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8); text-align: center; width: 85%;
+            opacity: 0; transition: opacity 0.4s ease 0.3s;
+        }
+        #lightbox.active #lightbox-caption { opacity: 1; }
+        .lightbox-close {
+             position: absolute; top: 25px; right: 35px; color: #fff; font-size: 3rem;
+             font-weight: 300; cursor: pointer; transition: transform 0.3s ease, color 0.3s ease;
+             line-height: 1; text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        .lightbox-close:hover { transform: scale(1.15) rotate(90deg); color: #ffdddd; }
+
+        .letter-section {
+            background: linear-gradient(to bottom, #1f1d3a, #1a1a2e, #0f0f1a);
+            color: #e0e0e0; padding-top: 6rem; padding-bottom: 7rem;
+        }
+        @keyframes subtle-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 12px 35px rgba(0,0,0,0.45); }
+        }
+        .envelope {
+            position: relative; width: 320px; height: 200px; background-color: #404460;
+            border-radius: 12px; cursor: pointer; margin: 30px auto;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
+            animation: subtle-pulse 3s infinite ease-in-out;
+        }
+        .envelope:hover {
+            transform: scale(1.1) rotate(-3deg); box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            animation-play-state: paused;
+        }
+        .envelope::before { content: ''; position: absolute; bottom: -10px; left: 5%; width: 90%; height: 20px; background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; z-index: -1; transition: opacity 0.4s ease; }
+         .envelope:hover::before { opacity: 0.7; }
+
+        .envelope-flap {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100px;
+            background-color: #4f5370; clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: top center; transition: transform 0.8s cubic-bezier(0.68, -0.6, 0.265, 1.6);
+            z-index: 10;
+        }
+        .envelope.open .envelope-flap { transform: rotateX(-180deg); }
+        .letter {
+            position: absolute; top: 10px; left: 5%; width: 90%; max-height: calc(100% - 20px);
+            background-color: #fffaf0;
+            color: #4a4a4a; border-radius: 6px; padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1) inset, 0 1px 2px rgba(0,0,0,0.1);
+            opacity: 0; transform: translateY(50px) scaleY(0.8);
+            transition: opacity 0.7s 0.5s ease-out, transform 0.7s 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 5; overflow-y: auto; transform-origin: top center;
+            font-family: 'Caveat', cursive; font-size: 1.3rem; line-height: 1.8;
+            isolation: isolate;
+        }
+        .letter::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/worn-dots.png');
+            opacity: 0.08; mix-blend-mode: multiply; pointer-events: none;
+            z-index: -1; border-radius: 6px;
+        }
+        .envelope.open .letter { opacity: 1; transform: translateY(5px) scaleY(1); height: 170px; }
+
+        .footer-section {
+            padding: 8rem 1.5rem 6rem 1.5rem; text-align: center; position: relative; overflow: hidden;
+            background: radial-gradient(ellipse at 50% 0%, #3a2a4a 0%, #2c1f3a 40%, #1a1125 70%, #0d0a10 100%);
+            color: #e0e0e0;
+        }
+        @keyframes fadeInGlowDramatic {
+            from { opacity: 0; transform: translateY(30px) scale(0.9); text-shadow: 0 0 8px rgba(255, 255, 255, 0.2); }
+            to { opacity: 1; transform: translateY(0) scale(1); text-shadow: 0 0 30px rgba(255, 255, 255, 0.9), 0 0 45px rgba(255, 200, 255, 0.4); }
+        }
+        .footer-quote {
+             opacity: 0;
+             animation: fadeInGlowDramatic 3s cubic-bezier(0.19, 1, 0.22, 1) 0.5s forwards;
+             font-size: 1.7rem; margin-bottom: 2rem;
+        }
+        .footer-signature {
+            color: #c0c0c0; opacity: 0; animation: fadeInUp 2s ease-out 1.5s forwards;
+            font-size: 1.1rem;
+        }
+
+        .fade-in-up, .fade-in {
+            opacity: 0; transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+        }
+        .fade-in-up { transform: translateY(35px); }
+        .fade-in-up.is-visible, .fade-in.is-visible { opacity: 1; transform: translateY(0); }
+
+        audio {
+            margin-top: 1.5rem; filter: invert(90%) sepia(10%) saturate(150%) hue-rotate(180deg) brightness(100%) contrast(90%);
+            border-radius: 50px; opacity: 0; animation: fadeInUp 1.5s ease-out 1.8s forwards;
+            width: 100%; max-width: 350px; display: block; margin-left: auto; margin-right: auto;
+        }
+
+        .scroll-down-arrow {
+            position: absolute; bottom: 40px; left: 50%; cursor: pointer; opacity: 0;
+            animation: bounceArrow 2.5s infinite ease-in-out 1.2s, fadeInArrow 1s ease 1.2s forwards;
+        }
+        .scroll-down-arrow svg { width: 30px; height: 30px; stroke: rgba(255, 255, 255, 0.7); stroke-width: 1.5; }
+        @keyframes bounceArrow {
+            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+            40% { transform: translate(-50%, -15px); }
+            60% { transform: translate(-50%, -8px); }
+        }
+         @keyframes fadeInArrow { from { opacity: 0; } to { opacity: 0.7; } }
+
+        /* Оптимизация для мобильных устройств */
+        @media (max-width: 768px) {
+            .sense-card, .fragment, .envelope {
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .portrait-container:hover {
+                transform: none;
+            }
+            
+            .portrait-description {
+                display: none;
+            }
+            
+            .envelope:hover {
+                transform: none;
+                animation: none;
+            }
+            
+            .fragment:hover img {
+                transform: none;
+            }
+            
+            .fragment-caption {
+                transform: translateY(0);
+                opacity: 1;
+                background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            }
+
+            /* Оптимизированная анимация для мобильных устройств */
+            .sense-card {
+                transition: transform 0.3s ease-out;
+            }
+            
+            .sense-card:active {
+                transform: scale(0.98);
+            }
+
+            .sense-icon {
+                animation: mobile-pulse 2s ease-in-out infinite;
+            }
+
+            @keyframes mobile-pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        }
+
+        /* Падающие звёзды */
+        .falling-star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+            animation: starFloat linear infinite;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .falling-star::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+        }
+
+        .star-small {
+            width: 1px;
+            height: 1px;
+        }
+
+        .star-medium {
+            width: 2px;
+            height: 2px;
+        }
+
+        .star-large {
+            width: 3px;
+            height: 3px;
+        }
+
+        @keyframes starFloat {
+            0% {
+                transform: translateY(-20vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(20vh) translateX(30px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Оптимизация для мобильных устройств */
+        @media (max-width: 768px) {
+            .falling-star {
+                filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+            }
+        }
+
+        /* Оптимизация производительности */
+        .sense-card, .fragment, .envelope, .portrait-container {
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        /* Улучшение отзывчивости */
+        .sense-card, .fragment, .envelope {
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        /* Анимация пяти чувств для десктопа */
+        @media (min-width: 769px) {
+            .sense-card {
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                            box-shadow 0.4s ease;
+            }
+
+            .sense-card:hover {
+                transform: translateY(-10px) rotate(1.5deg);
+                box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+            }
+
+            .sense-icon {
+                animation: desktop-pulse 3s ease-in-out infinite;
+            }
+
+            @keyframes desktop-pulse {
+                0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6)); }
+                50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)); }
+            }
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="preloader"><div class="loader"></div></div>
+
+    <section class="hero-section">
+        <div class="stars-bg" id="stars-layer-1"></div>
+        <div class="stars-bg" id="stars-layer-2"></div>
+        <div class="stars-bg" id="stars-layer-3"></div>
+        <h1 class="text-5xl md:text-7xl font-bold text-white mb-5 fade-in is-visible" style="animation-delay: 0.4s;">
+            Люличка — моё навсегда.
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-300 mb-8 animate-gentle-breathe fade-in is-visible" style="animation-delay: 0.8s;">
+            Она не из этого мира. Она — мой космос.
+        </p>
+        <a href="#portrait-section" class="scroll-down-arrow" aria-label="Scroll down">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </a>
+    </section>
+
+    <section id="portrait-section" class="portrait-section py-20 md:py-28">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <h2 class="text-4xl md:text-5xl font-handwritten text-center mb-12 md:mb-16 fade-in-up">Портрет её души</h2>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16">
+                <div class="relative portrait-container fade-in-up" style="transition-delay: 0.2s;">
+                    <img src="images/люличка-портрет.jpg"
+                         alt="Фото Люлички" 
+                         class="w-full max-w-sm md:max-w-md"
+                         width="800"
+                         height="600"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='images/люличка-портрет.jpg';">
+                    <div class="portrait-description desc-laugh font-handwritten">Её заразительный смех</div>
+                    <div class="portrait-description desc-eyes font-handwritten">Глаза, как два океана</div>
+                </div>
+                <div class="text-center md:text-left max-w-md fade-in-up" style="transition-delay: 0.4s;">
+                    <p class="text-lg md:text-xl leading-relaxed mb-6">
+                        В ней — целая вселенная. Теплота, которая может растопить ледники, и свет, который разгоняет любую тьму.
+                        Её улыбка — как первый луч солнца после долгой ночи.
+                    </p>
+                    <p class="text-lg md:text-xl leading-relaxed text-gray-600">
+                        Каждый взгляд, каждое слово, каждое движение — всё в ней уникально и бесценно.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="senses-section py-20 md:py-28" id="senses-section">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-handwritten text-center mb-16 md:mb-20 text-white fade-in-up" style="text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);">Пять чувств, одна Любовь</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+                <div class="sense-card p-6 md:p-8">
+                    <div class="flex justify-center mb-5 sense-icon"><img src="https://img.icons8.com/fluency-systems-regular/60/ffffff/visible.png" alt="Иконка глаза" class="w-12 h-12" onerror="this.style.display='none'"/></div>
+                    <h3 class="text-2xl font-semibold text-center mb-3">Видеть тебя</h3>
+                    <p class="text-center text-base leading-relaxed">Видеть мир твоими глазами, замечать детали, которые видишь ты. Твой взгляд меняет мою реальность.</p>
+                </div>
+                 <div class="sense-card p-6 md:p-8">
+                     <div class="flex justify-center mb-5 sense-icon"><img src="https://img.icons8.com/fluency-systems-regular/60/ffffff/hearing.png" alt="Иконка уха" class="w-12 h-12" onerror="this.style.display='none'"/></div>
+                    <h3 class="text-2xl font-semibold text-center mb-3">Слышать тебя</h3>
+                    <p class="text-center text-base leading-relaxed">Твой голос — музыка для моей души. Твой смех — самая любимая мелодия. Твой шепот — секрет счастья.</p>
+                </div>
+                 <div class="sense-card p-6 md:p-8 animate-pulse-glow">
+                     <div class="flex justify-center mb-5 sense-icon"><img src="https://img.icons8.com/fluency-systems-regular/60/ffffff/fragrance.png" alt="Иконка носа" class="w-12 h-12" onerror="this.style.display='none'"/></div>
+                    <h3 class="text-2xl font-semibold text-center mb-3">Чувствовать твой запах</h3>
+                    <p class="text-center text-base leading-relaxed">Запах твоих волос, твоей кожи, легкий аромат твоих духов... Этот аромат — мой дом.</p>
+                </div>
+                 <div class="sense-card p-6 md:p-8">
+                     <div class="flex justify-center mb-5 sense-icon"><img src="https://img.icons8.com/fluency-systems-regular/60/ffffff/hand-cursor.png" alt="Иконка руки" class="w-12 h-12" onerror="this.style.display='none'"/></div>
+                    <h3 class="text-2xl font-semibold text-center mb-3">Касаться тебя</h3>
+                    <p class="text-center text-base leading-relaxed">Держать твою руку, обнимать тебя, чувствовать тепло твоей кожи... Каждое прикосновение — искра.</p>
+                </div>
+                 <div class="sense-card p-6 md:p-8">
+                     <div class="flex justify-center mb-5 sense-icon"><img src="https://img.icons8.com/fluency-systems-regular/60/ffffff/mouth.png" alt="Иконка губ" class="w-12 h-12" onerror="this.style.display='none'"/></div>
+                    <h3 class="text-2xl font-semibold text-center mb-3">Вкус жизни с тобой</h3>
+                    <p class="text-center text-base leading-relaxed">С тобой жизнь обретает вкус — сладкий, яркий, насыщенный. Каждый день — как любимый десерт.</p>
+                </div>
+                <div class="hidden lg:block"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="gallery-section py-20 md:py-28">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-handwritten text-center mb-16 md:mb-20 fade-in-up">Фрагменты нашего мира</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+                <div class="fragment aspect-square" data-caption="Незабываемый момент, который останется в наших сердцах навсегда. Тот момент, когда я познакомился с твоими родителями">
+                    <img src="images/прогулка.jpg" 
+                         alt="Незабываемый момент, который останется в наших сердцах навсегда. Тот момент, когда я познакомился с твоими родителями" 
+                         loading="lazy" 
+                         onerror="this.onerror=null; this.src='images/прогулка.jpg';">
+                    <div class="fragment-caption">Первая поездка в Беларусь</div>
+                </div>
+                <div class="fragment aspect-square" data-caption="Тот самый момент, когда вспоминаешь, что у нас есть наш маленький Мафин">
+                    <img src="images/любимый мафин.jpg" 
+                         alt="Тот самый момент, когда вспоминаешь, что у нас есть наш маленький Мафин" 
+                         loading="lazy" 
+                         onerror="this.onerror=null; this.src='images/любимый мафин.jpg';">
+                    <div class="fragment-caption">Уютные вечера с любимым Мафином</div>
+                </div>
+                <div class="fragment aspect-square" data-caption="Место, которое мы вместе пережили">
+                     <img src="images/огниво.jpg" 
+                         alt="Место, которое мы вместе пережили" 
+                         loading="lazy" 
+                         onerror="this.onerror=null; this.src='images/огниво.jpg';">
+                    <div class="fragment-caption">Огниво</div>
+                </div>
+                 <div class="fragment aspect-square" data-caption="Фотограф, который делает самые лучшие фотографии">
+                    <img src="images/самый лучший фотограф.jpg" 
+                         alt="Фотограф, который делает самые лучшие фотографии" 
+                         loading="lazy" 
+                         onerror="this.onerror=null; this.src='images/самый лучший фотограф.jpg';">
+                    <div class="fragment-caption">Тот момент, когда ты стала лучшим фотографом</div>
+                </div>
+                 <div class="fragment aspect-square" data-caption="Вот кто должен был сниматься в Гарри Поттере">
+                    <img src="images/самый лучший гарри поттер.jpg" 
+                         alt="Вот кто должен был сниматься в Гарри Поттере" 
+                         loading="lazy" 
+                         onerror="this.onerror=null; this.src='images/самый лучший гарри поттер.jpg';">
+                    <div class="fragment-caption">Самый лучший Гарри Поттер</div>
+                </div>
+                 <div class="fragment aspect-square" data-caption="Как мы стали жить вместе">
+                    <img src="images/наша любовь вечна.jpg" 
+                         alt="Как мы стали жить вместе" 
+                         loading="lazy" 
+                         onerror="this.onerror=null; this.src='images/наша любовь вечна.jpg';">
+                    <div class="fragment-caption">Наша любовь вечна</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="Увеличенное изображение">
+        <div id="lightbox-caption"></div>
+    </div>
+
+    <section class="letter-section py-20 md:py-28">
+        <div class="container mx-auto px-6 max-w-3xl text-center">
+            <h2 class="text-4xl md:text-5xl font-handwritten mb-10 md:mb-12 text-white fade-in-up" style="text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);">Письмо из глубины души</h2>
+            <p class="text-lg text-gray-300 mb-10 md:mb-12 max-w-xl mx-auto fade-in-up" style="transition-delay: 0.2s;">
+                Иногда слов не хватает, чтобы выразить всё. Но я попробую... Нажми на конверт.
+            </p>
+            <div class="envelope fade-in-up" id="envelope" style="transition-delay: 0.4s;">
+                <div class="envelope-flap"></div>
+                <div class="letter" id="letter-content">
+                    <p>Моя любимая Люличка,</p>
+                    <p>Если бы звезды могли говорить, они бы рассказали тебе, как сильно я тебя люблю. Каждая из них — это частичка моего восхищения тобой. Ты — не просто человек в моей жизни, ты — сама жизнь, её самый яркий свет, её самая красивая мелодия.</p>
+                    <p>С тобой каждый день — это открытие. Ты учишь меня любить глубже, смеяться громче и ценить каждое мгновение. Спасибо тебе за то, что ты есть, за то, что ты выбрала меня.</p>
+                    <p>Ты — моё навсегда, моё вдохновение, моя тихая гавань и мой бушующий океан одновременно.</p>
+                    <p class="text-right mt-4">С любовью, навеки твой.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer-section relative">
+         <div class="stars-bg" id="footer-stars-layer-1"></div>
+         <div class="stars-bg" id="footer-stars-layer-2"></div>
+         <div class="stars-bg" id="footer-stars-layer-3"></div>
+         <div class="container mx-auto px-6 relative z-10">
+            <p class="text-xl md:text-2xl font-handwritten footer-quote mb-8">
+                "Любовь — это не смотреть друг на друга, а смотреть вместе в одном направлении."
+            </p>
+            <p class="footer-signature mb-6">Навсегда твой.</p>
+             <audio controls loop preload="metadata" title="Наша песня">
+                <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" type="audio/mpeg">
+                [Ваш браузер не поддерживает аудио элемент.]
+            </audio>
+        </div>
+    </footer>
+
+
+    <script>
+        window.addEventListener('load', () => {
+            const preloader = document.getElementById('preloader');
+            const body = document.body;
+            if (preloader) {
+                setTimeout(() => {
+                    preloader.classList.add('hidden');
+                    body.classList.add('loaded');
+                }, 300);
+            } else {
+                body.classList.add('loaded');
+            }
+             requestAnimationFrame(updateEffects);
+        });
+
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        }, { passive: true });
+
+
+        function createStars(containerId, starCount, dustCount) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                const type = Math.floor(Math.random() * 3) + 1;
+                star.className = `star type${type}`;
+                star.style.top = `${Math.random() * containerHeight}px`;
+                star.style.left = `${Math.random() * containerWidth}px`;
+                star.style.animationDelay = `-${Math.random() * 6}s`;
+                container.appendChild(star);
+            }
+
+            for (let i = 0; i < dustCount; i++) {
+                const dust = document.createElement('div');
+                dust.className = 'star-dust';
+                const size = Math.random() * 1.5 + 0.5;
+                const duration = Math.random() * 15 + 10;
+                const delay = Math.random() * duration;
+                const opacity = Math.random() * 0.4 + 0.1;
+                const driftX = (Math.random() - 0.5) * 40;
+                const driftY = (Math.random() - 0.5) * 40;
+                dust.style.setProperty('--dust-size', `${size}px`);
+                dust.style.setProperty('--drift-duration', `${duration}s`);
+                dust.style.setProperty('--drift-delay', `-${delay}s`);
+                dust.style.setProperty('--dust-opacity', opacity);
+                dust.style.setProperty('--drift-x', `${driftX}px`);
+                dust.style.setProperty('--drift-y', `${driftY}px`);
+                dust.style.top = `${Math.random() * containerHeight}px`;
+                dust.style.left = `${Math.random() * containerWidth}px`;
+                container.appendChild(dust);
+            }
+        }
+
+        const envelope = document.getElementById('envelope');
+        const letterContent = document.getElementById('letter-content');
+        if (envelope && letterContent) {
+            envelope.addEventListener('click', () => {
+                envelope.classList.toggle('open');
+                if (envelope.classList.contains('open')) {
+                    setTimeout(() => { letterContent.scrollTop = 0; }, 800);
+                }
+            });
+        }
+
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        };
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        const elementsToAnimate = document.querySelectorAll('.fade-in-up, .fade-in, .sense-card, .fragment');
+        elementsToAnimate.forEach(el => observer.observe(el));
+
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCaption = document.getElementById('lightbox-caption');
+        const closeButton = document.querySelector('.lightbox-close');
+        const fragments = document.querySelectorAll('.fragment');
+        if (lightbox && lightboxImg && lightboxCaption && closeButton && fragments.length > 0) {
+            const openLightbox = (imgSrc, captionText) => {
+                lightboxImg.src = imgSrc; lightboxCaption.textContent = captionText;
+                lightbox.classList.add('active'); document.body.style.overflow = 'hidden';
+            };
+            const closeLightbox = () => {
+                lightbox.classList.remove('active'); document.body.style.overflow = '';
+                setTimeout(() => {
+                     if (!lightbox.classList.contains('active')) {
+                         lightboxImg.src = ''; lightboxCaption.textContent = '';
+                     }
+                }, 500);
+            };
+            fragments.forEach(fragment => {
+                fragment.addEventListener('click', () => {
+                    const img = fragment.querySelector('img');
+                    const caption = fragment.dataset.caption || '';
+                    if (img) openLightbox(img.src, caption);
+                });
+            });
+            closeButton.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+            document.addEventListener('keydown', (e) => { if (e.key === "Escape" && lightbox.classList.contains('active')) closeLightbox(); });
+        }
+
+        const heroLayer1 = document.getElementById('stars-layer-1');
+        const heroLayer2 = document.getElementById('stars-layer-2');
+        const heroLayer3 = document.getElementById('stars-layer-3');
+        const footerLayer1 = document.getElementById('footer-stars-layer-1');
+        const footerLayer2 = document.getElementById('footer-stars-layer-2');
+        const footerLayer3 = document.getElementById('footer-stars-layer-3');
+        const sensesSection = document.getElementById('senses-section');
+
+        function updateEffects() {
+            const scrollY = window.scrollY;
+
+            const parallaxFactor1 = 0.1;
+            const parallaxFactor2 = 0.2;
+            const parallaxFactor3 = 0.35;
+
+            if (heroLayer1) heroLayer1.style.transform = `translateY(${scrollY * parallaxFactor1}px)`;
+            if (heroLayer2) heroLayer2.style.transform = `translateY(${scrollY * parallaxFactor2}px)`;
+            if (heroLayer3) heroLayer3.style.transform = `translateY(${scrollY * parallaxFactor3}px)`;
+
+            const footerSectionEl = document.querySelector('.footer-section');
+            if (footerSectionEl) {
+                const footerTop = footerSectionEl.offsetTop;
+                const scrollRelativeToFooter = Math.max(0, scrollY + window.innerHeight - footerTop);
+                if (footerLayer1) footerLayer1.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor1 * 0.6}px)`;
+                if (footerLayer2) footerLayer2.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor2 * 0.6}px)`;
+                if (footerLayer3) footerLayer3.style.transform = `translateY(${-scrollRelativeToFooter * parallaxFactor3 * 0.6}px)`;
+            }
+
+            if (sensesSection) {
+                 const rect = sensesSection.getBoundingClientRect();
+                 const mouseXInSection = Math.max(0, Math.min(1, (mouseX - rect.left) / rect.width));
+                 const mouseYInSection = Math.max(0, Math.min(1, (mouseY - rect.top) / rect.height));
+                 const angle = 160 + (mouseXInSection - 0.5) * 40;
+                 const colorStop = 40 + (mouseYInSection - 0.5) * 10;
+                 sensesSection.style.setProperty('--senses-bg',
+                    `linear-gradient(${angle}deg, #2a2a4e 0%, #3a2a5a ${colorStop}%, #1a1a2e 70%, #1b2735 100%)`
+                 );
+            }
+            requestAnimationFrame(updateEffects);
+        }
+
+         document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                 createStars('stars-layer-1', 50, 100);
+                 createStars('stars-layer-2', 80, 150);
+                 createStars('stars-layer-3', 100, 200);
+                 createStars('footer-stars-layer-1', 40, 80);
+                 createStars('footer-stars-layer-2', 60, 120);
+                 createStars('footer-stars-layer-3', 80, 150);
+            }, 200);
+         });
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() { timeout = null; if (!immediate) func.apply(context, args); };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout); timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         const handleResize = debounce(() => {
+             createStars('stars-layer-1', 50, 100);
+             createStars('stars-layer-2', 80, 150);
+             createStars('stars-layer-3', 100, 200);
+             createStars('footer-stars-layer-1', 40, 80);
+             createStars('footer-stars-layer-2', 60, 120);
+             createStars('footer-stars-layer-3', 80, 150);
+         }, 300);
+         window.addEventListener('resize', handleResize);
+
+        // Оптимизация для мобильных устройств
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            document.body.style.setProperty('--animation-duration', '0.3s');
+            
+            const touchHandler = (e) => {
+                e.preventDefault();
+                const target = e.target.closest('.fragment, .sense-card, .envelope');
+                if (target) {
+                    target.click();
+                }
+            };
+            
+            document.addEventListener('touchstart', touchHandler, { passive: false });
+        }
+        
+        // Оптимизация производительности
+        const optimizePerformance = () => {
+            const elements = document.querySelectorAll('.sense-card, .fragment, .envelope');
+            elements.forEach(el => {
+                el.style.willChange = 'transform';
+                el.style.transform = 'translateZ(0)';
+            });
+        };
+        
+        window.addEventListener('load', optimizePerformance);
+
+        // Создание звёзд
+        function createFallingStars() {
+            const container = document.querySelector('.hero-section');
+            if (!container) return;
+
+            const createStar = () => {
+                const star = document.createElement('div');
+                
+                // Случайный размер звезды
+                const sizes = ['star-small', 'star-medium', 'star-large'];
+                const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+                star.className = `falling-star ${randomSize}`;
+                
+                // Случайная позиция по X
+                const startX = Math.random() * window.innerWidth;
+                star.style.left = `${startX}px`;
+                
+                // Случайная длительность движения
+                const duration = Math.random() * 8 + 12; // от 12 до 20 секунд
+                star.style.animationDuration = `${duration}s`;
+                
+                // Случайная задержка
+                const delay = Math.random() * 10;
+                star.style.animationDelay = `${delay}s`;
+                
+                // Случайное направление движения
+                const direction = Math.random() > 0.5 ? 1 : -1;
+                star.style.setProperty('--direction', direction);
+                
+                container.appendChild(star);
+                
+                // Удаляем звезду после завершения анимации
+                star.addEventListener('animationend', () => {
+                    star.remove();
+                });
+            };
+
+            // Создаем начальные звёзды
+            const initialStars = isMobile ? 15 : 30;
+            for (let i = 0; i < initialStars; i++) {
+                createStar();
+            }
+
+            // Периодически создаем новые звёзды
+            setInterval(createStar, 3000);
+        }
+
+        // Инициализация звёзд после загрузки страницы
+        window.addEventListener('load', () => {
+            createFallingStars();
+        });
+
+        // Оптимизация для мобильных устройств
+        const optimizeForMobile = () => {
+            if (isMobile) {
+                const stars = document.querySelectorAll('.falling-star');
+                stars.forEach((star, index) => {
+                    if (index > 10) star.remove();
+                });
+            }
+        };
+
+        window.addEventListener('resize', optimizeForMobile);
+
+    </script>
+
+</body>
+</html>
